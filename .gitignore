@@ -1,0 +1,21 @@
+# Compiled class files
+target/
+
+# Maven wrapper downloaded files
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Dependency reduced POM
+dependency-reduced-pom.xml
