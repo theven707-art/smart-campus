@@ -1,0 +1,396 @@
+{
+	"info": {
+		"_postman_id": "c1a2b3c4-d5e6-7f8g-9h0i-j1k2l3m4n5o6",
+		"name": "Smart Campus API",
+		"description": "Collection to test the Smart Campus Sensor & Room Management API.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Discovery",
+			"item": [
+				{
+					"name": "Get API Metadata",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Rooms",
+			"item": [
+				{
+					"name": "Get All Rooms",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/rooms",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"rooms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Room by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/rooms/LIB-301",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"rooms",
+								"LIB-301"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create New Room",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"CAFE-101\",\r\n    \"name\": \"Student Cafeteria\",\r\n    \"capacity\": 200\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/rooms",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"rooms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Room (Triggers 409 Conflict)",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/rooms/LIB-301",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"rooms",
+								"LIB-301"
+							]
+						},
+						"description": "Attempts to delete a room that still has sensors assigned, returning a custom RoomNotEmptyException mapped to a 409 Conflict."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sensors",
+			"item": [
+				{
+					"name": "Get All Sensors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensors",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sensors by Type (Filter)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensors?type=Temperature",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensors"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "Temperature"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sensor by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensors/TEMP-001",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensors",
+								"TEMP-001"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Sensor (Success)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"TEMP-003\",\r\n    \"type\": \"Temperature\",\r\n    \"status\": \"ACTIVE\",\r\n    \"roomId\": \"LIB-301\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensors",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Sensor (Triggers 422 Unprocessable Entity)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"FAKE-001\",\r\n    \"type\": \"FakeType\",\r\n    \"status\": \"ACTIVE\",\r\n    \"roomId\": \"INVALID-ROOM-ID\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensors",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensors"
+							]
+						},
+						"description": "Attempts to create a sensor in a room that doesn't exist, triggering the LinkedResourceNotFoundException."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sensor Readings",
+			"item": [
+				{
+					"name": "Get Reading History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensors/TEMP-001/readings",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensors",
+								"TEMP-001",
+								"readings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add New Reading",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"value\": 23.5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensors/TEMP-001/readings",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensors",
+								"TEMP-001",
+								"readings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Reading (Triggers 403 Forbidden)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"value\": 99.9\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensors/TEMP-002/readings",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensors",
+								"TEMP-002",
+								"readings"
+							]
+						},
+						"description": "Attempts to post a reading to TEMP-002, which is in MAINTENANCE mode. This triggers the SensorUnavailableException."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
