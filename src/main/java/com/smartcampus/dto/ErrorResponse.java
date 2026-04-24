@@ -1,17 +1,12 @@
 package com.smartcampus.dto;
 
-/**
- * Standardized JSON error response body used by all exception mappers.
- *
- * Every error returned by the API follows this consistent structure,
- * making it easy for client developers to parse and handle errors
- * programmatically without guessing the response format.
- */
+// A standard error response structure that all our exception mappers use
+// This way every error from the API looks the same, making it easier for clients to handle
 public class ErrorResponse {
 
-    private int status;         // HTTP status code (e.g., 409, 422, 500)
-    private String error;       // Short error label (e.g., "Conflict", "Unprocessable Entity")
-    private String message;     // Detailed human-readable explanation
+    private int status;       // the HTTP status code like 409, 422, 500
+    private String error;     // short label like "Conflict" or "Forbidden"
+    private String message;   // detailed explanation of what went wrong
 
     public ErrorResponse() {
     }

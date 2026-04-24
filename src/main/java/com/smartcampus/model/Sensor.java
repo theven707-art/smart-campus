@@ -1,24 +1,19 @@
 package com.smartcampus.model;
 
-/**
- * Represents a sensor device deployed within a room on the Smart Campus.
- * Sensors have a type (e.g., Temperature, CO2, Occupancy), a status
- * indicating their operational state, and a current reading value.
- * Each sensor is linked to a specific room via roomId.
- */
+// Represents a sensor device installed in a campus room
+// Each sensor has a type (like Temperature or CO2), a status, and a current reading
 public class Sensor {
 
-    private String id;              // Unique identifier, e.g., "TEMP-001"
-    private String type;            // Category, e.g., "Temperature", "Occupancy", "CO2"
-    private String status;          // Current state: "ACTIVE", "MAINTENANCE", or "OFFLINE"
-    private double currentValue;    // The most recent measurement recorded
-    private String roomId;          // Foreign key linking to the Room where the sensor is located
+    private String id;
+    private String type;           // e.g. "Temperature", "CO2", "Occupancy"
+    private String status;         // "ACTIVE" or "MAINTENANCE"
+    private double currentValue;   // most recent reading value
+    private String roomId;         // which room this sensor belongs to
 
-    // Default no-arg constructor (required for JSON deserialization)
+    // Empty constructor needed for JSON deserialization
     public Sensor() {
     }
 
-    // Parameterized constructor for convenience
     public Sensor(String id, String type, String status, double currentValue, String roomId) {
         this.id = id;
         this.type = type;

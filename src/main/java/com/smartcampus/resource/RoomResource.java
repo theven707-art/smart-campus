@@ -11,45 +11,26 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * JAX-RS resource class managing the /api/v1/rooms collection.
- *
- * Provides CRUD operations for Room entities on the Smart Campus.
- * Includes safety logic to prevent deletion of rooms that still
- * have active sensors assigned, protecting data integrity.
- */
+// Handles all the room-related API endpoints under /api/v1/rooms
 @Path("/rooms")
 @Produces(MediaType.APPLICATION_JSON)
 public class RoomResource {
 
     private final DataStore dataStore = DataStore.getInstance();
 
-    /**
-     * GET /api/v1/rooms
-     *
-     * Returns a comprehensive list of all rooms currently registered
-     * in the Smart Campus system. Returns the full room objects (not
-     * just IDs) to minimize the number of round-trips a client needs
-     * to make — trading slightly higher bandwidth for significantly
-     * fewer HTTP requests.
-     */
+    // GET /api/v1/rooms - returns all rooms as a list
+    // We return full objects instead of just IDs to save the client from making extra requests
     @GET
     public List<Room> getAllRooms() {
         return new ArrayList<>(dataStore.getRooms().values());
     }
 
-    /**
-     * POST /api/v1/rooms
-     *
-     * Creates a new room in the system. The client provides the room
-     * details in the JSON request body. On success, returns HTTP 201
-     * Created with the created room entity and a Location header
-     * pointing to the new resource URI.
-     */
+    // POST /api/v1/rooms - creates a new room
+    // Expects a JSON body with id, name, and capacity
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response createRoom(Room room) {
-        // Validate required fields
+        // Make sure the room has an ID
         if (room.getId() == null || room.getId().trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"error\": \"Bad Request\", \"message\": \"Room ID is required.\"}")
@@ -57,7 +38,7 @@ public class RoomResource {
                     .build();
         }
 
-        // Check for duplicate room ID
+        // Don't allow duplicate room IDs
         if (dataStore.getRoom(room.getId()) != null) {
             return Response.status(Response.Status.CONFLICT)
                     .entity("{\"error\": \"Conflict\", \"message\": \"A room with ID '"
@@ -66,25 +47,20 @@ public class RoomResource {
                     .build();
         }
 
-        // Initialize sensor list if the client didn't provide one
+        // Make sure the sensor list is initialized even if the client didn't send one
         if (room.getSensorIds() == null) {
             room.setSensorIds(new ArrayList<>());
         }
 
         dataStore.addRoom(room);
 
-        // Return 201 Created with the Location header and the room entity
+        // Return 201 with a Location header pointing to the new room
         return Response.created(URI.create("/api/v1/rooms/" + room.getId()))
                 .entity(room)
                 .build();
     }
 
-    /**
-     * GET /api/v1/rooms/{roomId}
-     *
-     * Retrieves detailed metadata for a specific room identified by
-     * its unique ID. Returns 404 if the room does not exist.
-     */
+    // GET /api/v1/rooms/{roomId} - get a specific room by its ID
     @GET
     @Path("/{roomId}")
     public Response getRoom(@PathParam("roomId") String roomId) {
@@ -101,20 +77,8 @@ public class RoomResource {
         return Response.ok(room).build();
     }
 
-    /**
-     * DELETE /api/v1/rooms/{roomId}
-     *
-     * Decommissions a room from the system. Before deletion, this method
-     * checks whether any sensors are still assigned to the room. If sensors
-     * exist, the deletion is blocked and a RoomNotEmptyException is thrown,
-     * which the corresponding ExceptionMapper converts to a 409 Conflict.
-     *
-     * Idempotency: If the room has already been deleted (i.e., it doesn't
-     * exist), the endpoint returns 404. Strictly speaking, a truly idempotent
-     * DELETE would return 204 even for an already-deleted resource. However,
-     * returning 404 is a common and practical choice as it clearly communicates
-     * the current state of the system to the client.
-     */
+    // DELETE /api/v1/rooms/{roomId} - removes a room from the system
+    // But only if no sensors are still assigned to it
     @DELETE
     @Path("/{roomId}")
     public Response deleteRoom(@PathParam("roomId") String roomId) {
@@ -128,7 +92,7 @@ public class RoomResource {
                     .build();
         }
 
-        // Business logic constraint: block deletion if sensors are still assigned
+        // Can't delete a room if it still has sensors inside it
         if (room.getSensorIds() != null && !room.getSensorIds().isEmpty()) {
             throw new RoomNotEmptyException(
                     "Cannot delete room '" + roomId + "' because it still has "
@@ -140,7 +104,7 @@ public class RoomResource {
 
         dataStore.removeRoom(roomId);
 
-        // 204 No Content — successful deletion with no response body
+        // 204 means it was deleted successfully, no body needed
         return Response.noContent().build();
     }
 }

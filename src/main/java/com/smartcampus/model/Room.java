@@ -3,24 +3,18 @@ package com.smartcampus.model;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Represents a physical room on the Smart Campus.
- * Each room has a unique identifier, a human-readable name,
- * a maximum occupancy capacity, and a list of sensor IDs
- * that are currently deployed within it.
- */
+// Represents a physical room on campus (like a lecture hall or lab)
 public class Room {
 
-    private String id;           // Unique identifier, e.g., "LIB-301"
-    private String name;         // Human-readable name, e.g., "Library Quiet Study"
-    private int capacity;        // Maximum occupancy for safety regulations
-    private List<String> sensorIds = new ArrayList<>(); // IDs of sensors deployed in this room
+    private String id;
+    private String name;
+    private int capacity;
+    private List<String> sensorIds = new ArrayList<>(); // keeps track of which sensors are in this room
 
-    // Default no-arg constructor (required for JSON deserialization)
+    // Empty constructor needed for JSON deserialization
     public Room() {
     }
 
-    // Parameterized constructor for convenience
     public Room(String id, String name, int capacity) {
         this.id = id;
         this.name = name;

@@ -1,21 +1,16 @@
 package com.smartcampus.model;
 
-/**
- * Represents a single measurement reading captured by a sensor at a specific
- * point in time. Each reading has a unique UUID-based ID, a timestamp in
- * epoch milliseconds, and the actual value recorded by the sensor hardware.
- */
+// Represents a single measurement captured by a sensor at a specific time
 public class SensorReading {
 
-    private String id;          // Unique reading event ID (UUID recommended)
-    private long timestamp;     // Epoch time (ms) when the reading was captured
-    private double value;       // The actual metric value recorded by the hardware
+    private String id;          // unique ID for this reading
+    private long timestamp;     // when the reading was taken (epoch milliseconds)
+    private double value;       // the actual recorded value
 
-    // Default no-arg constructor (required for JSON deserialization)
+    // Empty constructor needed for JSON deserialization
     public SensorReading() {
     }
 
-    // Parameterized constructor for convenience
     public SensorReading(String id, long timestamp, double value) {
         this.id = id;
         this.timestamp = timestamp;

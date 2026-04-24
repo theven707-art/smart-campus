@@ -1,10 +1,6 @@
 package com.smartcampus.exception;
 
-/**
- * Thrown when a client attempts to delete a Room that still has
- * active sensors assigned to it. This protects against creating
- * orphaned sensor records with no parent room reference.
- */
+// Thrown when someone tries to delete a room that still has sensors in it
 public class RoomNotEmptyException extends RuntimeException {
 
     public RoomNotEmptyException(String message) {

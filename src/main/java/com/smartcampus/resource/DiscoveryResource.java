@@ -7,27 +7,12 @@ import javax.ws.rs.core.MediaType;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Root discovery endpoint for the Smart Campus API.
- *
- * This endpoint acts as the entry point for the API, providing clients
- * with essential metadata including version information, administrative
- * contact details, and a navigable map of available resource collections.
- *
- * This design follows the HATEOAS (Hypermedia as the Engine of Application
- * State) principle — clients can discover all available resources dynamically
- * rather than relying on out-of-band documentation.
- */
+// Root endpoint of the API - provides metadata and links to available resources
+// This follows the HATEOAS principle so clients can discover endpoints dynamically
 @Path("/")
 public class DiscoveryResource {
 
-    /**
-     * GET /api/v1
-     *
-     * Returns API metadata including version, contact, and a resource
-     * directory that allows client applications to discover available
-     * endpoints at runtime.
-     */
+    // Returns API info and links to the rooms and sensors collections
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Map<String, Object> getApiInfo() {
@@ -37,7 +22,7 @@ public class DiscoveryResource {
         apiInfo.put("description", "RESTful service for managing campus rooms, sensors, and readings");
         apiInfo.put("contact", "admin@smartcampus.westminster.ac.uk");
 
-        // Resource directory — allows clients to navigate the API dynamically
+        // These links let clients navigate to the available resource collections
         Map<String, String> resources = new LinkedHashMap<>();
         resources.put("rooms", "/api/v1/rooms");
         resources.put("sensors", "/api/v1/sensors");

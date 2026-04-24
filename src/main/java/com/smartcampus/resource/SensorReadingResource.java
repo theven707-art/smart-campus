@@ -12,43 +12,24 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Sub-resource class for managing sensor readings.
- *
- * This class is NOT annotated with @Path at the class level because it
- * is instantiated and returned by the SensorResource sub-resource locator.
- * The path context (/api/v1/sensors/{sensorId}/readings) is established
- * by the parent resource.
- *
- * This pattern provides several architectural benefits:
- * - Separation of concerns: reading logic is isolated from sensor CRUD logic
- * - Reusability: this class could be mounted under different parent resources
- * - Maintainability: smaller, focused classes are easier to test and modify
- * - Scalability: new sub-resources can be added without bloating the parent
- */
+// Sub-resource for managing sensor readings
+// This class is created by SensorResource's sub-resource locator, not directly by JAX-RS
+// It handles everything under /api/v1/sensors/{sensorId}/readings
 @Produces(MediaType.APPLICATION_JSON)
 public class SensorReadingResource {
 
     private final String sensorId;
     private final DataStore dataStore = DataStore.getInstance();
 
-    /**
-     * Constructor receives the sensorId from the parent sub-resource locator.
-     * This establishes the context for all reading operations in this instance.
-     */
+    // The sensor ID is passed in from the parent resource
     public SensorReadingResource(String sensorId) {
         this.sensorId = sensorId;
     }
 
-    /**
-     * GET /api/v1/sensors/{sensorId}/readings
-     *
-     * Retrieves the full historical log of readings for the specified sensor.
-     * Returns 404 if the parent sensor does not exist.
-     */
+    // GET /api/v1/sensors/{sensorId}/readings - returns all historical readings for this sensor
     @GET
     public Response getAllReadings() {
-        // Verify the parent sensor exists
+        // First check if the sensor exists
         Sensor sensor = dataStore.getSensor(sensorId);
         if (sensor == null) {
             return Response.status(Response.Status.NOT_FOUND)
@@ -62,26 +43,13 @@ public class SensorReadingResource {
         return Response.ok(readings).build();
     }
 
-    /**
-     * POST /api/v1/sensors/{sensorId}/readings
-     *
-     * Appends a new reading to the specified sensor's history.
-     *
-     * Business rules:
-     * 1. The parent sensor must exist (404 if not found)
-     * 2. The sensor must NOT be in "MAINTENANCE" status (403 if it is)
-     * 3. A UUID is auto-generated for the reading if not provided
-     * 4. The current timestamp is set if not provided
-     *
-     * Side Effect: A successful POST updates the parent sensor's
-     * currentValue field to match the new reading's value. This ensures
-     * consistency across the API — querying a sensor always shows
-     * the most recent measurement.
-     */
+    // POST /api/v1/sensors/{sensorId}/readings - adds a new reading
+    // Won't work if the sensor is in MAINTENANCE mode (returns 403)
+    // Also updates the sensor's currentValue as a side effect
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addReading(SensorReading reading) {
-        // Verify the parent sensor exists
+        // Check the sensor exists
         Sensor sensor = dataStore.getSensor(sensorId);
         if (sensor == null) {
             return Response.status(Response.Status.NOT_FOUND)
@@ -91,7 +59,7 @@ public class SensorReadingResource {
                     .build();
         }
 
-        // State constraint: maintenance sensors cannot accept readings
+        // Don't allow readings on sensors that are under maintenance
         if ("MAINTENANCE".equalsIgnoreCase(sensor.getStatus())) {
             throw new SensorUnavailableException(
                     "Sensor '" + sensorId + "' is currently in MAINTENANCE mode and cannot "
@@ -100,7 +68,7 @@ public class SensorReadingResource {
             );
         }
 
-        // Auto-generate reading ID and timestamp if not provided
+        // Auto-generate an ID and timestamp if the client didn't provide them
         if (reading.getId() == null || reading.getId().trim().isEmpty()) {
             reading.setId(UUID.randomUUID().toString());
         }
@@ -108,13 +76,12 @@ public class SensorReadingResource {
             reading.setTimestamp(System.currentTimeMillis());
         }
 
-        // Persist the reading
+        // Save the reading
         dataStore.addReading(sensorId, reading);
 
-        // Side effect: update the parent sensor's currentValue
+        // Also update the sensor's current value to match this latest reading
         sensor.setCurrentValue(reading.getValue());
 
-        // Return 201 Created
         return Response.created(URI.create("/api/v1/sensors/" + sensorId + "/readings/" + reading.getId()))
                 .entity(reading)
                 .build();

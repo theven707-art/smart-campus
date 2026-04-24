@@ -10,43 +10,31 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Singleton, thread-safe in-memory data store for the Smart Campus API.
- *
- * Uses ConcurrentHashMap to safely handle concurrent read/write operations
- * from multiple request threads without explicit synchronization. This is
- * critical because, by default, JAX-RS creates a new resource class instance
- * per request, so the data store must be shared as a singleton to maintain
- * state across all requests.
- */
+// Singleton data store that holds all our rooms, sensors, and readings in memory
+// We use ConcurrentHashMap because multiple API requests can hit this at the same time
 public class DataStore {
 
-    // Singleton instance — created once, shared across all resource classes
+    // Only one instance of this class exists throughout the application
     private static final DataStore INSTANCE = new DataStore();
 
-    // Core data structures using ConcurrentHashMap for thread safety
+    // Using ConcurrentHashMap instead of regular HashMap for thread safety
     private final Map<String, Room> rooms = new ConcurrentHashMap<>();
     private final Map<String, Sensor> sensors = new ConcurrentHashMap<>();
     private final Map<String, List<SensorReading>> readings = new ConcurrentHashMap<>();
 
-    // Private constructor — prevents external instantiation
+    // Private constructor so nobody can create another instance
     private DataStore() {
         seedData();
     }
 
-    /**
-     * Returns the singleton instance of the data store.
-     */
+    // Returns the single shared instance
     public static DataStore getInstance() {
         return INSTANCE;
     }
 
-    /**
-     * Seeds the data store with sample campus data so that the API
-     * has meaningful responses immediately upon startup.
-     */
+    // Populates some sample data so the API has something to show right away
     private void seedData() {
-        // Create sample rooms
+        // Setting up some rooms
         Room lib301 = new Room("LIB-301", "Library Quiet Study", 40);
         Room eng105 = new Room("ENG-105", "Engineering Lab A", 30);
         Room sci201 = new Room("SCI-201", "Science Lecture Hall", 120);
@@ -55,7 +43,7 @@ public class DataStore {
         rooms.put(eng105.getId(), eng105);
         rooms.put(sci201.getId(), sci201);
 
-        // Create sample sensors and link them to rooms
+        // Setting up sensors and linking them to rooms
         Sensor temp001 = new Sensor("TEMP-001", "Temperature", "ACTIVE", 22.5, "LIB-301");
         Sensor co2001 = new Sensor("CO2-001", "CO2", "ACTIVE", 415.0, "LIB-301");
         Sensor occ001 = new Sensor("OCC-001", "Occupancy", "ACTIVE", 18.0, "ENG-105");
@@ -68,28 +56,28 @@ public class DataStore {
         sensors.put(temp002.getId(), temp002);
         sensors.put(light001.getId(), light001);
 
-        // Update room sensor ID lists to reflect the linkages
+        // Linking each sensor ID to its room
         lib301.getSensorIds().add("TEMP-001");
         lib301.getSensorIds().add("CO2-001");
         eng105.getSensorIds().add("OCC-001");
         eng105.getSensorIds().add("TEMP-002");
         sci201.getSensorIds().add("LIGHT-001");
 
-        // Create sample readings for TEMP-001
+        // Adding some sample reading history for TEMP-001
         List<SensorReading> temp001Readings = new ArrayList<>();
         temp001Readings.add(new SensorReading(UUID.randomUUID().toString(), System.currentTimeMillis() - 60000, 21.8));
         temp001Readings.add(new SensorReading(UUID.randomUUID().toString(), System.currentTimeMillis() - 30000, 22.1));
         temp001Readings.add(new SensorReading(UUID.randomUUID().toString(), System.currentTimeMillis(), 22.5));
         readings.put("TEMP-001", temp001Readings);
 
-        // Create sample readings for CO2-001
+        // Adding some sample reading history for CO2-001
         List<SensorReading> co2Readings = new ArrayList<>();
         co2Readings.add(new SensorReading(UUID.randomUUID().toString(), System.currentTimeMillis() - 45000, 410.0));
         co2Readings.add(new SensorReading(UUID.randomUUID().toString(), System.currentTimeMillis(), 415.0));
         readings.put("CO2-001", co2Readings);
     }
 
-    // ==================== Room Operations ====================
+    // --- Room operations ---
 
     public Map<String, Room> getRooms() {
         return rooms;
@@ -107,7 +95,7 @@ public class DataStore {
         return rooms.remove(id);
     }
 
-    // ==================== Sensor Operations ====================
+    // --- Sensor operations ---
 
     public Map<String, Sensor> getSensors() {
         return sensors;
@@ -125,20 +113,14 @@ public class DataStore {
         return sensors.remove(id);
     }
 
-    // ==================== Reading Operations ====================
+    // --- Reading operations ---
 
-    /**
-     * Returns the list of readings for a given sensor.
-     * Returns an empty list if no readings exist yet.
-     */
+    // Gets all readings for a sensor, returns empty list if none exist
     public List<SensorReading> getReadings(String sensorId) {
         return readings.getOrDefault(sensorId, new ArrayList<>());
     }
 
-    /**
-     * Appends a new reading to the specified sensor's history.
-     * Automatically creates the readings list if it doesn't exist yet.
-     */
+    // Adds a new reading and creates the list if this is the first reading for that sensor
     public void addReading(String sensorId, SensorReading reading) {
         readings.computeIfAbsent(sensorId, k -> new ArrayList<>()).add(reading);
     }
